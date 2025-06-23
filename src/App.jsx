@@ -226,7 +226,13 @@ const App = () => {
       headerName: "Price",
       width: 130,
       type: "numericColumn",
-      valueFormatter: (params) => "$" + params.value?.toLocaleString(),
+      valueFormatter: (params) => {
+        if (!params.data)
+          return Math.min(
+            ...params.node.allLeafChildren.map((d) => d.data.price),
+          );
+        return "$" + params.value?.toLocaleString();
+      },
       enableValue: true,
       aggFunc: "avgPrice",
       cellStyle: (params) => {
