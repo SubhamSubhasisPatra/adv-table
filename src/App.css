@@ -1,0 +1,483 @@
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f5f5f5;
+}
+
+/* App Container */
+.app-container {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.header p {
+    margin: 10px 0 0 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+.btn-success:hover {
+    background: #1e7e34;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.btn-info {
+    background: #17a2b8;
+    color: white;
+}
+.btn-info:hover {
+    background: #117a8b;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: #212529;
+}
+.btn-warning:hover {
+    background: #e0a800;
+}
+
+/* Instructions */
+.instructions {
+    background: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.instructions p {
+    margin: 0 0 10px 0;
+    color: #1565c0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.instructions p:last-child {
+    margin-bottom: 0;
+}
+
+/* Grid Container - 90% width */
+.grid-container {
+    height: 600px;
+    width: 90%;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+/* AG Grid Theme Customizations */
+.ag-theme-alpine {
+    --ag-header-height: 45px;
+    --ag-row-height: 40px;
+    --ag-font-size: 14px;
+    --ag-header-foreground-color: #333;
+    --ag-header-background-color: #f8f9fa;
+    --ag-odd-row-background-color: #fafafa;
+    --ag-row-hover-color: #f0f8ff;
+    --ag-selected-row-background-color: #e3f2fd;
+    --ag-border-color: #e0e0e0;
+    --ag-font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+}
+
+/* Row Group Panel (Drag Area) */
+.ag-theme-alpine .ag-row-group-panel {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+    border: 2px dashed #007bff;
+    border-radius: 8px;
+    min-height: 60px;
+    margin: 12px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ag-theme-alpine .ag-row-group-panel-empty-message {
+    color: #007bff;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.ag-theme-alpine .ag-row-group-panel-empty-message::before {
+    content: "🎯 ";
+    margin-right: 8px;
+}
+
+/* Group Rows (VS Code tree-like) */
+.ag-theme-alpine .ag-row-group {
+    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-left: 4px solid #007bff;
+    font-weight: 600;
+}
+
+.ag-theme-alpine .ag-row-group:hover {
+    background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%) !important;
+}
+
+/* Group Icons (expand/collapse buttons like VS Code) */
+.ag-theme-alpine .ag-group-expanded .ag-icon {
+    color: #007bff;
+    font-size: 16px;
+}
+
+.ag-theme-alpine .ag-group-contracted .ag-icon {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+/* Group Footer Styling */
+.ag-theme-alpine .ag-group-footer {
+    background: #f1f3f4 !important;
+    font-weight: 600;
+    color: #495057;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Header styling */
+.ag-theme-alpine .ag-header {
+    border-bottom: 2px solid #007bff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ag-theme-alpine .ag-header-cell {
+    border-right: 1px solid #e0e0e0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.ag-theme-alpine .ag-header-cell:hover {
+    background-color: #e3f2fd;
+}
+
+/* Pinned columns */
+.ag-theme-alpine .ag-pinned-left-cols-container {
+    border-right: 2px solid #007bff;
+    background: #f8f9fa;
+}
+
+/* Row styling */
+.ag-theme-alpine .ag-row {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ag-theme-alpine .ag-row:hover {
+    background-color: #f0f8ff !important;
+}
+
+.ag-theme-alpine .ag-row-selected {
+    background-color: #e3f2fd !important;
+    border-left: 4px solid #007bff;
+}
+
+/* Cell styling */
+.ag-theme-alpine .ag-cell {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    border-right: 1px solid #f5f5f5;
+}
+
+/* Aggregated Values in Group Rows */
+.ag-theme-alpine .ag-group-value {
+    background: linear-gradient(90deg, #d4edda, #c3e6cb);
+    border: 1px solid #28a745;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-left: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #155724;
+}
+
+/* Enhanced Group Cell Styling */
+.ag-theme-alpine .ag-group-cell-entire-row {
+    background: linear-gradient(90deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-left: 4px solid #007bff;
+    font-weight: 600;
+}
+
+.ag-theme-alpine .ag-group-cell-entire-row:hover {
+    background: linear-gradient(90deg, #e9ecef 0%, #dee2e6 100%) !important;
+}
+
+/* Custom aggregation value styling */
+.ag-theme-alpine .ag-cell-value {
+    display: flex;
+    align-items: center;
+}
+
+/* Price range indicator */
+.price-high {
+    color: #e74c3c !important;
+    font-weight: bold !important;
+}
+
+.price-medium {
+    color: #f39c12 !important;
+}
+
+.price-low {
+    color: #27ae60 !important;
+}
+
+/* Mileage indicators */
+.mileage-high {
+    color: #e74c3c !important;
+}
+
+.mileage-medium {
+    color: #f39c12 !important;
+}
+
+.mileage-low {
+    color: #27ae60 !important;
+}
+
+/* Rating indicators */
+.rating-excellent {
+    color: #27ae60 !important;
+    font-weight: bold !important;
+}
+
+.rating-good {
+    color: #f39c12 !important;
+}
+
+.rating-poor {
+    color: #e74c3c !important;
+}
+
+/* Scrollbar styling */
+.ag-theme-alpine ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.ag-theme-alpine ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Focus styles */
+.ag-theme-alpine .ag-header-cell:focus,
+.ag-theme-alpine .ag-cell:focus {
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+}
+
+/* Animation for smooth interactions */
+.ag-theme-alpine .ag-row {
+    transition: background-color 0.2s ease;
+}
+
+.ag-theme-alpine .ag-group-expanded,
+.ag-theme-alpine .ag-group-contracted {
+    transition: all 0.2s ease;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .grid-container {
+        width: 95%;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        padding: 10px;
+    }
+
+    .grid-container {
+        width: 100%;
+        height: 500px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        width: 200px;
+        margin-bottom: 5px;
+    }
+
+    .header h1 {
+        font-size: 1.4rem;
+    }
+
+    .ag-theme-alpine {
+        --ag-header-height: 40px;
+        --ag-row-height: 35px;
+        --ag-font-size: 12px;
+    }
+
+    .ag-theme-alpine .ag-row-group-panel {
+        min-height: 50px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid-container {
+        height: 400px;
+    }
+
+    .header h1 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Feature Info Panel */
+.feature-info {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    border-left: 4px solid #007bff;
+}
+
+.feature-info h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.feature-info ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.feature-info li {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.feature-info strong {
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .feature-info {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .feature-info h3 {
+        font-size: 1rem;
+    }
+
+    .feature-info li {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+}
