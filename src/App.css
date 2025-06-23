@@ -235,10 +235,51 @@ body {
     font-weight: 600;
     display: flex;
     align-items: center;
+    cursor: grab;
+    transition: all 0.2s ease;
 }
 
 .ag-theme-alpine .ag-header-cell:hover {
     background-color: #e3f2fd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.ag-theme-alpine .ag-header-cell:active {
+    cursor: grabbing;
+    transform: translateY(0);
+}
+
+/* Add drag indicator for groupable columns */
+.ag-theme-alpine .ag-header-cell[col-id="make"]:after,
+.ag-theme-alpine .ag-header-cell[col-id="country"]:after,
+.ag-theme-alpine .ag-header-cell[col-id="brand"]:after,
+.ag-theme-alpine .ag-header-cell[col-id="model"]:after,
+.ag-theme-alpine .ag-header-cell[col-id="year"]:after {
+    content: "⇅";
+    color: #007bff;
+    font-size: 12px;
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.ag-theme-alpine .ag-header-cell[col-id="make"]:hover:after,
+.ag-theme-alpine .ag-header-cell[col-id="country"]:hover:after,
+.ag-theme-alpine .ag-header-cell[col-id="brand"]:hover:after,
+.ag-theme-alpine .ag-header-cell[col-id="model"]:hover:after,
+.ag-theme-alpine .ag-header-cell[col-id="year"]:hover:after {
+    opacity: 1;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* Pinned columns */
@@ -427,6 +468,211 @@ body {
 
     .header h1 {
         font-size: 1.2rem;
+    }
+}
+
+/* Custom Drag & Drop Area */
+.custom-drop-area-container {
+    margin: 20px 0;
+    padding: 0 15px;
+}
+
+.custom-drop-area {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 3px dashed #6c757d;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.3s ease;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.custom-drop-area.drag-over {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-color: #2196f3;
+    border-style: solid;
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+}
+
+.drop-area-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.drop-icon {
+    font-size: 24px;
+    animation: bounce 2s infinite;
+}
+
+.drop-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.custom-drop-area.drag-over .drop-title {
+    color: #1976d2;
+}
+
+.drop-area-empty {
+    opacity: 0.7;
+}
+
+.drop-area-empty p {
+    margin: 5px 0;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.drop-hint {
+    font-style: italic;
+    font-size: 12px !important;
+    color: #28a745 !important;
+}
+
+/* Grouped Columns Display */
+.grouped-columns {
+    width: 100%;
+    text-align: left;
+}
+
+.grouped-columns-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.grouped-columns-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.grouped-column-item {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.grouped-column-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.group-order {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.group-name {
+    flex: 1;
+}
+
+.remove-group-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.remove-group-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+/* Bounce animation for drop icon */
+@keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive design for drop area */
+@media (max-width: 768px) {
+    .custom-drop-area {
+        padding: 20px 15px;
+        min-height: 80px;
+    }
+
+    .drop-title {
+        font-size: 16px;
+    }
+
+    .grouped-columns-list {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .grouped-column-item {
+        width: 100%;
+        max-width: 250px;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-drop-area {
+        padding: 15px 10px;
+        margin: 15px 0;
+    }
+
+    .drop-icon {
+        font-size: 20px;
+    }
+
+    .drop-title {
+        font-size: 14px;
+    }
+
+    .drop-area-empty p {
+        font-size: 12px;
     }
 }
 

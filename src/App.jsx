@@ -177,6 +177,8 @@ const customAggFunctions = {
 const App = () => {
   const [rowData, setRowData] = useState([]);
   const [gridApi, setGridApi] = useState(null);
+  const [groupedColumns, setGroupedColumns] = useState([]);
+  const [dragOverArea, setDragOverArea] = useState(false);
 
   // Column definitions with aggregation enabled
   const columnDefs = [
@@ -247,7 +249,13 @@ const App = () => {
       headerName: "Mileage",
       width: 120,
       type: "numericColumn",
-      valueFormatter: (params) => params.value?.toLocaleString() + " mi",
+      valueFormatter: (params) => {
+        if (!params.data)
+          return Math.min(
+            ...params.node.allLeafChildren.map((d) => d.data.mileage),
+          );
+        return params.value?.toLocaleString() + " mi";
+      },
       enableValue: true,
       aggFunc: "sumWithAvg",
       cellStyle: (params) => {
@@ -261,10 +269,23 @@ const App = () => {
       headerName: "Rating",
       width: 130,
       type: "numericColumn",
-      valueFormatter: (params) => params.value?.toFixed(1) + " ⭐",
+      valueFormatter: (params) => {
+        // Check if it's a group row
+        if (params.node && params.node.group) {
+          // For group rows, return the already formatted aggregated value
+          return params.value;
+        }
+        // For regular rows, format the rating
+        return params.value?.toFixed(1) + " ⭐";
+      },
       enableValue: true,
       aggFunc: "avgRating",
       cellStyle: (params) => {
+        // Only apply styling to leaf (data) rows, not group rows
+        if (params.node && params.node.group) {
+          return { fontWeight: "bold", fontStyle: "italic" };
+        }
+
         if (params.value >= 4.5)
           return { color: "#27ae60", fontWeight: "bold" };
         if (params.value >= 4.0) return { color: "#f39c12" };
@@ -280,6 +301,8 @@ const App = () => {
     resizable: true,
     enableRowGroup: false,
     enableValue: false,
+    // Enable column dragging
+    suppressMovable: false,
   };
 
   // Auto group column with custom renderer for enhanced display
@@ -303,6 +326,77 @@ const App = () => {
     headerTooltip: "Grouped data with expandable rows and aggregated values",
   };
 
+  // Handle drag over the drop area
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragOverArea(true);
+  };
+
+  // Handle drag leave the drop area
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragOverArea(false);
+  };
+
+  // Handle drop in the drop area
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOverArea(false);
+
+    try {
+      // Get the column field from the drag data
+      const columnField = e.dataTransfer.getData("text/plain");
+
+      console.log("Dropped column field:", columnField); // Debug log
+
+      if (columnField && !groupedColumns.includes(columnField)) {
+        // Check if the column supports row grouping
+        const columnDef = columnDefs.find((col) => col.field === columnField);
+        if (
+          columnDef &&
+          (columnDef.enableRowGroup ||
+            columnField === "make" ||
+            columnField === "country" ||
+            columnField === "brand" ||
+            columnField === "model" ||
+            columnField === "year")
+        ) {
+          const newGroupedColumns = [...groupedColumns, columnField];
+          setGroupedColumns(newGroupedColumns);
+
+          // Update the grid grouping
+          if (gridApi) {
+            gridApi.setRowGroupColumns(newGroupedColumns);
+          }
+        } else {
+          console.log("Column does not support grouping:", columnField);
+        }
+      } else if (groupedColumns.includes(columnField)) {
+        console.log("Column already grouped:", columnField);
+      }
+    } catch (error) {
+      console.log("Drop error:", error);
+    }
+  };
+
+  // Remove a column from grouping
+  const removeGroupColumn = (columnField) => {
+    const newGroupedColumns = groupedColumns.filter(
+      (col) => col !== columnField,
+    );
+    setGroupedColumns(newGroupedColumns);
+
+    if (gridApi) {
+      gridApi.setRowGroupColumns(newGroupedColumns);
+    }
+  };
+
+  // Get display name for column
+  const getColumnDisplayName = (field) => {
+    const columnDef = columnDefs.find((col) => col.field === field);
+    return columnDef ? columnDef.headerName : field;
+  };
+
   // Grid options with custom aggregation functions
   const gridOptions = {
     animateRows: true,
@@ -311,7 +405,6 @@ const App = () => {
     groupIncludeTotalFooter: true,
     suppressAggFuncInHeader: true,
     enableRangeSelection: true,
-    rowGroupPanelShow: "always",
     functionsReadOnly: false,
     aggFuncs: customAggFunctions,
     groupRowRenderer: "agGroupCellRenderer",
@@ -321,6 +414,15 @@ const App = () => {
         return `Total: ${count} vehicles`;
       },
     },
+    onColumnRowGroupChanged: (params) => {
+      // Sync state when grouping changes through ag-Grid's built-in functionality
+      const currentGroupColumns = params.columnApi
+        .getRowGroupColumns()
+        .map((col) => col.getColId());
+      setGroupedColumns(currentGroupColumns);
+    },
+    // Enable column drag for our custom drop area
+
     getGroupRowAgg: (groupKeys, rowGroupColumns, children) => {
       // Custom logic for group row aggregation
       const result = {};
@@ -370,47 +472,74 @@ const App = () => {
   const onGridReady = (params) => {
     setGridApi(params.api);
     params.api.sizeColumnsToFit();
+
+    // Add custom drag listeners to column headers
+    setTimeout(() => {
+      const columnHeaders = document.querySelectorAll(
+        ".ag-header-cell[col-id]",
+      );
+      columnHeaders.forEach((header) => {
+        const colId = header.getAttribute("col-id");
+
+        // Check if this column is groupable
+        const isGroupable = [
+          "make",
+          "brand",
+          "model",
+          "year",
+          "country",
+        ].includes(colId);
+
+        if (isGroupable) {
+          header.style.cursor = "grab";
+          header.draggable = true;
+
+          header.addEventListener("dragstart", (e) => {
+            header.style.cursor = "grabbing";
+            e.dataTransfer.setData("text/plain", colId);
+            e.dataTransfer.effectAllowed = "copy";
+            console.log("Column drag started:", colId);
+          });
+
+          header.addEventListener("dragend", (e) => {
+            header.style.cursor = "grab";
+            console.log("Column drag ended:", colId);
+          });
+        }
+      });
+    }, 100);
   };
 
-  // Clear all groups
+  // Clear all groups (updated to sync with state)
   const clearGroups = () => {
+    setGroupedColumns([]);
     if (gridApi) {
       gridApi.setRowGroupColumns([]);
     }
   };
 
-  // Group by Make
+  // Updated group functions to sync with state
   const groupByMake = () => {
+    const columns = ["make"];
+    setGroupedColumns(columns);
     if (gridApi) {
-      gridApi.setRowGroupColumns(["make"]);
+      gridApi.setRowGroupColumns(columns);
     }
   };
 
-  // Group by Country
   const groupByCountry = () => {
+    const columns = ["country"];
+    setGroupedColumns(columns);
     if (gridApi) {
-      gridApi.setRowGroupColumns(["country"]);
+      gridApi.setRowGroupColumns(columns);
     }
   };
 
-  // Group by Country then Make
   const groupByCountryMake = () => {
+    const columns = ["country", "make"];
+    setGroupedColumns(columns);
     if (gridApi) {
-      gridApi.setRowGroupColumns(["country", "make"]);
-    }
-  };
-
-  // Group by Price Range (custom grouping)
-  const groupByPriceRange = () => {
-    if (gridApi) {
-      // First clear existing groups
-      gridApi.setRowGroupColumns([]);
-
-      // Add a custom price range grouping
-      setTimeout(() => {
-        gridApi.setRowGroupColumns(["country", "make"]);
-        gridApi.setColumnValue("price");
-      }, 100);
+      gridApi.setRowGroupColumns(columns);
     }
   };
 
@@ -428,21 +557,14 @@ const App = () => {
     }
   };
 
-  // Apply enhanced grouping with values
-  const applyEnhancedGrouping = () => {
-    if (gridApi) {
-      gridApi.setRowGroupColumns(["country", "make"]);
-      gridApi.setValueColumns(["price", "mileage", "rating"]);
-    }
-  };
-
   return (
     <div className="app-container">
       {/* Header */}
       <div className="header">
-        <h1>Car Inventory - Enhanced Grouping with Aggregations</h1>
+        <h1>Car Inventory - Enhanced Grouping with Drag & Drop</h1>
         <p>
-          Group headers show calculated values like averages, totals, and ranges
+          Drag columns from the table to the drop area below to group
+          dynamically
         </p>
       </div>
 
@@ -460,9 +582,6 @@ const App = () => {
         <button onClick={groupByCountryMake} className="btn btn-info">
           Group by Country → Make
         </button>
-        <button onClick={applyEnhancedGrouping} className="btn btn-warning">
-          Enhanced Grouping
-        </button>
         <button onClick={expandAll} className="btn btn-secondary">
           Expand All
         </button>
@@ -471,17 +590,60 @@ const App = () => {
         </button>
       </div>
 
-      {/* Instructions */}
-      <div className="instructions">
-        <p>
-          📋 <strong>Instructions:</strong> Use buttons for quick grouping, or
-          drag columns to "Row Groups" area. Try "Enhanced Grouping" to see
-          aggregated values (avg price, total mileage, avg rating) in group
-          headers.
-          <br />
-          <strong>📊 Aggregations:</strong> Price shows averages, Mileage shows
-          totals, Rating shows stars, Year shows ranges.
-        </p>
+      {/* Custom Drag & Drop Area */}
+      <div className="custom-drop-area-container">
+        <div
+          className={`custom-drop-area ${dragOverArea ? "drag-over" : ""}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onDragEnter={(e) => {
+            e.preventDefault();
+            setDragOverArea(true);
+          }}
+        >
+          <div className="drop-area-header">
+            <span className="drop-icon">🎯</span>
+            <span className="drop-title">Drop Columns Here to Group</span>
+          </div>
+
+          {groupedColumns.length === 0 ? (
+            <div className="drop-area-empty">
+              <p>
+                Drag column headers from the table below to create dynamic
+                groups
+              </p>
+              <p className="drop-hint">
+                💡 Click and drag any column header (Country, Make, Brand,
+                Model, Year)
+              </p>
+              <p className="drop-hint">
+                🖱️ You can also use the buttons above for quick grouping
+              </p>
+            </div>
+          ) : (
+            <div className="grouped-columns">
+              <div className="grouped-columns-label">Active Groups:</div>
+              <div className="grouped-columns-list">
+                {groupedColumns.map((columnField, index) => (
+                  <div key={columnField} className="grouped-column-item">
+                    <span className="group-order">{index + 1}</span>
+                    <span className="group-name">
+                      {getColumnDisplayName(columnField)}
+                    </span>
+                    <button
+                      className="remove-group-btn"
+                      onClick={() => removeGroupColumn(columnField)}
+                      title={`Remove ${getColumnDisplayName(columnField)} from grouping`}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* AG Grid Table */}
@@ -494,7 +656,8 @@ const App = () => {
           gridOptions={gridOptions}
           onGridReady={onGridReady}
           // Grouping settings
-          rowGroupPanelShow="always"
+          rowGroupPanelShow="never" // Hide the built-in panel since we have our custom one
+          allowDragFromColumnsToolPanel={true}
           groupDefaultExpanded={0}
           groupIncludeFooter={true}
           groupIncludeTotalFooter={true}
@@ -506,6 +669,9 @@ const App = () => {
           enableRangeSelection={true}
           enableCharts={false}
           maintainColumnOrder={true}
+          suppressDragLeaveHidesColumns={true}
+          // Disable row dragging and enable column operations
+          suppressRowDrag={true}
           suppressDragLeaveHidesColumns={true}
         />
       </div>
